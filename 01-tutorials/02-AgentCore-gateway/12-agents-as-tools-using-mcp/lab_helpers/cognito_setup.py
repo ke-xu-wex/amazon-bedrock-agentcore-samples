@@ -23,6 +23,7 @@ from typing import Dict, Any, Optional
 from lab_helpers.config import AWS_REGION, AWS_PROFILE
 from lab_helpers.parameter_store import put_parameter, get_parameter, delete_parameter
 from lab_helpers.constants import PARAMETER_PATHS
+from lab_helpers.redaction import redact_secret, redact_email
 
 
 class CognitoSetup:
@@ -35,7 +36,7 @@ class CognitoSetup:
         self.region = region
         self.prefix = "aiml301"
         self.test_user_email = f"testuser@{self.prefix}.example.com"
-        self.test_user_password = "TempPass123!"  # Meets policy: uppercase, lowercase, numbers, symbols
+        self.test_user_password = "<enter password>"  # Meets policy: uppercase, lowercase, numbers, symbols
 
     def create_user_pool(self) -> str:
         """
@@ -210,7 +211,8 @@ class CognitoSetup:
             client_secret = response['UserPoolClient']['ClientSecret']
 
             print(f"✅ M2M Client created: {client_id}")
-            print(f"   ⚠️  Client secret generated (length: {len(client_secret)} chars) - Store securely in AWS Secrets Manager")
+            print(f"   ⚠️  Client secret: {redact_secret(client_secret)}")
+            print(f"   ⚠️  Store client secret securely (AWS Secrets Manager recommended)")
 
             return client_id, client_secret
 
@@ -334,7 +336,7 @@ class CognitoSetup:
     def create_approver_user(self, user_pool_id: str) -> Dict[str, str]:
         """Create approver test user for multi-actor workflow"""
         approver_email = f"approver@{self.prefix}.example.com"
-        approver_password = "ApproverPass123!"  # Meets policy requirements
+        approver_password = "<enter password>"  # Meets policy requirements
 
         print(f"Creating approver user: {approver_email}...")
 
@@ -598,14 +600,15 @@ def setup_cognito_complete() -> Dict[str, Any]:
     print(f"    • Client ID: {cognito_config['user_auth_client']['client_id']}")
     print(f"    • OAuth Flows: {', '.join(cognito_config['user_auth_client']['oauth_flows'])}")
     print(f"    • OAuth Scopes: openid, profile, email, custom scopes")
-    print(f"\n  M2M Client ID: {cognito_config['m2m_client']['client_id']}")
-    print(f"    • Client Secret: ***REDACTED*** (stored in SSM)")
+    print(f"\n  M2M Client:")
+    print(f"    • Client ID: {cognito_config['m2m_client']['client_id']}")
+    print(f"    • Client Secret: {redact_secret(cognito_config['m2m_client']['client_secret'])}")
     print(f"\n  Groups Created:")
     print(f"    • sre (Precedence: 10) - Tools: generate_remediation_plan")
     print(f"    • approvers (Precedence: 5) - Tools: execute_remediation_step, validate_remediation_environment")
     print(f"\n  Users Created:")
-    print(f"    • Test User (SRE): {cognito_config['test_user']['email']} (password stored in SSM)")
-    print(f"    • Approver User: {cognito_config['approver_user']['email']} (password stored in SSM)")
+    print(f"    • Test User (SRE): {redact_email(cognito_config['test_user']['email'])} (password: {redact_secret(cognito_config['test_user']['password'])})")
+    print(f"    • Approver User: {redact_email(cognito_config['approver_user']['email'])} (password: {redact_secret(cognito_config['approver_user']['password'])})")
     print(f"\nAll configuration stored in SSM Parameter Store under /aiml301/cognito/*")
     print(f"Reference copy saved to cognito_config.json\n")
 

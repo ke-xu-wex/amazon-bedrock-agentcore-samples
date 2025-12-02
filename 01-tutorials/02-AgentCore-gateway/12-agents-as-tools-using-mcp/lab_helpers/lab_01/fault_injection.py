@@ -10,6 +10,7 @@ from typing import Dict
 from botocore.exceptions import ClientError
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from .ssm_helper import get_stack_resources
+from lab_helpers.redaction import redact_secret
 
 # Global storage for original configurations (for potential future rollback)
 original_configs = {}
@@ -49,7 +50,7 @@ def _update_single_table(dynamodb, table_name: str) -> tuple:
         print(f"Processing table: {table_name}")
         table_info = dynamodb.describe_table(TableName=table_name)
         original_billing_mode = table_info['Table']['BillingModeSummary']['BillingMode']
-        print(f"  Original billing mode: {original_billing_mode} (non-sensitive configuration)")
+        print(f"  Original billing mode: {original_billing_mode}")
         
         # Convert to provisioned capacity with dangerously low limits
         print(f"  Converting to PROVISIONED mode with minimal capacity...")
@@ -200,7 +201,7 @@ def inject_iam_permissions(resources: Dict[str, str], region_name: str, profile_
                 PolicyName='DynamoDBAccess'
             )
             original_configs['dynamodb_policy'] = original_policy['PolicyDocument']
-            print("  ✅ Original policy backed up")
+            print("  ✅ Original policy backed up (redacted)")
         except ClientError:
             print("  ⚠️  Could not backup original policy (may not exist)")
 

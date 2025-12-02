@@ -10,6 +10,7 @@ import boto3
 import json
 from lab_helpers.constants import PARAMETER_PATHS
 from lab_helpers.config import AWS_REGION as DEFAULT_AWS_REGION
+from lab_helpers.redaction import redact_secret
 
 # Initialize SSM client (region will be specified per call if needed)
 def get_ssm_client(region_name=None):
@@ -36,11 +37,18 @@ def put_parameter(key, value, description="", region_name=None, overwrite=True):
     try:
         ssm = get_ssm_client(region_name)
 
+        # Determine if this is a sensitive parameter
+        sensitive_keywords = ['password', 'secret', 'token', 'key', 'credential']
+        is_sensitive = any(keyword in key.lower() for keyword in sensitive_keywords)
+        
         # DEBUG: Log parameter write attempt
         effective_region = region_name if region_name else DEFAULT_AWS_REGION
         print(f"🔍 DEBUG: put_parameter() called")
         print(f"   Key: {key}")
-        print(f"   Value: ***REDACTED*** (length: {len(str(value))} chars)")
+        if is_sensitive:
+            print(f"   Value: {redact_secret(str(value))}")
+        else:
+            print(f"   Value length: {len(str(value))} chars")
         print(f"   Region: {effective_region}")
         print(f"   Overwrite: {overwrite}")
 
@@ -50,7 +58,10 @@ def put_parameter(key, value, description="", region_name=None, overwrite=True):
             existing = ssm.get_parameter(Name=key)
             parameter_exists = True
             existing_value = existing['Parameter']['Value']
-            print(f"   Existing value: ***REDACTED*** (length: {len(existing_value)} chars)")
+            if is_sensitive:
+                print(f"   Existing value: {redact_secret(existing_value)}")
+            else:
+                print(f"   Existing value found: {len(existing_value)} chars")
         except ssm.exceptions.ParameterNotFound:
             parameter_exists = False
             print(f"   Existing value: None")

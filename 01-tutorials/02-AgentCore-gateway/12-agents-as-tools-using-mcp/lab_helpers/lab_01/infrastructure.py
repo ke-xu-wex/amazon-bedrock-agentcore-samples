@@ -5,6 +5,7 @@ Infrastructure verification functions for Lab 01
 import boto3
 from typing import Dict
 from botocore.exceptions import ClientError
+from lab_helpers.redaction import redact_secret
 
 
 def verify_ec2_instances(resources: Dict[str, str], region_name: str, profile_name: str = None) -> bool:
@@ -98,7 +99,7 @@ def verify_dynamodb_tables(resources: Dict[str, str], region_name: str, profile_
                 billing_mode = response['Table']['BillingModeSummary']['BillingMode']
 
                 if status == 'ACTIVE':
-                    print(f"  ✅ Table {table_name}: {status} (billing mode: {billing_mode})")
+                    print(f"  ✅ Table {table_name}: {status} ({billing_mode})")
                 else:
                     print(f"  ⚠️  Table {table_name}: {status}")
                     all_active = False
@@ -243,6 +244,6 @@ def get_app_url():
         if resource['LogicalResourceId'] == "PublicALB":
             response = elbv2.describe_load_balancers(LoadBalancerArns=[resource['PhysicalResourceId']])
             dns_name = response['LoadBalancers'][0]['DNSName']
-            url= f"http://{dns_name}:8080"
+            url = f"http://{dns_name}:8080"
     return url
             

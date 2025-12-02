@@ -24,6 +24,7 @@ from typing import Dict, Optional, List
 from lab_helpers.config import AWS_REGION, AWS_PROFILE
 from lab_helpers.parameter_store import get_parameter, put_parameter
 from lab_helpers.constants import PARAMETER_PATHS
+from lab_helpers.redaction import redact_secret
 
 
 class RuntimeOAuth2Configuration:
@@ -114,9 +115,9 @@ class RuntimeOAuth2Configuration:
 
         print("Runtime OAuth2 Validation Configuration:")
         print(f"  Inbound Auth Type: {runtime_oauth2_config['inbound_auth_type']}")
-        print(f"  Issuer: ***REDACTED***")
-        print(f"  JWKS URI: ***REDACTED***")
-        print(f"  Required Scopes: {len(runtime_oauth2_config['scope_config']['required_scopes'])} scope(s) configured")
+        print(f"  Issuer: {runtime_oauth2_config['oauth2_config']['issuer']}")
+        print(f"  JWKS URI: {runtime_oauth2_config['oauth2_config']['jwks_uri']}")
+        print(f"  Required Scopes: {', '.join(runtime_oauth2_config['scope_config']['required_scopes'])}")
         print(f"  Validate Signature: {runtime_oauth2_config['token_validation']['validate_signature']}")
         print(f"  Validate Expiration: {runtime_oauth2_config['token_validation']['validate_expiration']}\n")
 
