@@ -24,7 +24,6 @@ from typing import Dict, Optional, List
 from lab_helpers.config import AWS_REGION, AWS_PROFILE
 from lab_helpers.parameter_store import get_parameter, put_parameter
 from lab_helpers.constants import PARAMETER_PATHS
-from lab_helpers.redaction import redact_secret
 
 
 class RuntimeOAuth2Configuration:

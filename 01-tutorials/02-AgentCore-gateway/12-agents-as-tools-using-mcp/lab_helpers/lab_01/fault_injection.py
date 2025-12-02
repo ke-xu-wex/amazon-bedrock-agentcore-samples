@@ -10,7 +10,6 @@ from typing import Dict
 from botocore.exceptions import ClientError
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from .ssm_helper import get_stack_resources
-from lab_helpers.redaction import redact_secret
 
 # Global storage for original configurations (for potential future rollback)
 original_configs = {}

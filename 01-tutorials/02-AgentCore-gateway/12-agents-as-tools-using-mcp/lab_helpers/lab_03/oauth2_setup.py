@@ -22,7 +22,6 @@ from botocore.exceptions import ClientError
 from lab_helpers.config import AWS_REGION, AWS_PROFILE
 from lab_helpers.parameter_store import get_parameter, put_parameter
 from lab_helpers.constants import PARAMETER_PATHS
-from lab_helpers.redaction import redact_secret
 
 
 class OAuth2CredentialProviderSetup:
@@ -66,7 +65,7 @@ class OAuth2CredentialProviderSetup:
 
         print(f"✅ Retrieved M2M credentials from Cognito")
         print(f"   - M2M Client ID: {m2m_client_id}")
-        print(f"   - M2M Client Secret: {redact_secret(m2m_client_secret)}")
+        print(f"   - M2M Client Secret: ****")
         print(f"   - User Pool ID: {user_pool_id}")
 
         # Build discovery URL for OAuth2 discovery endpoint

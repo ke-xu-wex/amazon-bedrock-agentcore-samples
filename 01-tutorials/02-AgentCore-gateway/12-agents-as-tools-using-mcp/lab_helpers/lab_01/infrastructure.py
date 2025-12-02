@@ -5,7 +5,6 @@ Infrastructure verification functions for Lab 01
 import boto3
 from typing import Dict
 from botocore.exceptions import ClientError
-from lab_helpers.redaction import redact_secret
 
 
 def verify_ec2_instances(resources: Dict[str, str], region_name: str, profile_name: str = None) -> bool:

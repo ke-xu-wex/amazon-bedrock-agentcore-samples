@@ -23,7 +23,6 @@ from typing import Dict, Any, Optional
 from lab_helpers.config import AWS_REGION, AWS_PROFILE
 from lab_helpers.parameter_store import put_parameter, get_parameter, delete_parameter
 from lab_helpers.constants import PARAMETER_PATHS
-from lab_helpers.redaction import redact_secret, redact_email
 
 
 class CognitoSetup:
@@ -211,7 +210,7 @@ class CognitoSetup:
             client_secret = response['UserPoolClient']['ClientSecret']
 
             print(f"✅ M2M Client created: {client_id}")
-            print(f"   ⚠️  Client secret: {redact_secret(client_secret)}")
+            print(f"   ⚠️  Client secret: ****")
             print(f"   ⚠️  Store client secret securely (AWS Secrets Manager recommended)")
 
             return client_id, client_secret
@@ -602,13 +601,13 @@ def setup_cognito_complete() -> Dict[str, Any]:
     print(f"    • OAuth Scopes: openid, profile, email, custom scopes")
     print(f"\n  M2M Client:")
     print(f"    • Client ID: {cognito_config['m2m_client']['client_id']}")
-    print(f"    • Client Secret: {redact_secret(cognito_config['m2m_client']['client_secret'])}")
+    print(f"    • Client Secret: ****")
     print(f"\n  Groups Created:")
     print(f"    • sre (Precedence: 10) - Tools: generate_remediation_plan")
     print(f"    • approvers (Precedence: 5) - Tools: execute_remediation_step, validate_remediation_environment")
     print(f"\n  Users Created:")
-    print(f"    • Test User (SRE): {redact_email(cognito_config['test_user']['email'])} (password: {redact_secret(cognito_config['test_user']['password'])})")
-    print(f"    • Approver User: {redact_email(cognito_config['approver_user']['email'])} (password: {redact_secret(cognito_config['approver_user']['password'])})")
+    print(f"    • Test User (SRE): **** (password: ****)")
+    print(f"    • Approver User: **** (password: ****)")
     print(f"\nAll configuration stored in SSM Parameter Store under /aiml301/cognito/*")
     print(f"Reference copy saved to cognito_config.json\n")
 

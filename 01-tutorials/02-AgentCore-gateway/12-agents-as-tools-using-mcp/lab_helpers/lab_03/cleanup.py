@@ -38,7 +38,6 @@ import botocore
 from lab_helpers.constants import PARAMETER_PATHS
 from lab_helpers.lab_03.configure_logging import cleanup_runtime_logging
 from botocore.exceptions import ClientError
-from lab_helpers.redaction import redact_secret
 
 logger = logging.getLogger(__name__)
 
@@ -310,7 +309,7 @@ def cleanup_lab_03(region_name: str = "us-west-2", verbose: bool = True) -> None
                                 runtime_id = param_value.strip()
 
                         if runtime_id:
-                            print(f"  Found runtime ID: {redact_secret(runtime_id)}")
+                            print(f"  Found runtime ID: ****")
                             runtime_id_for_logging = runtime_id
 
                             # Clean up CloudWatch Logs Delivery BEFORE deleting runtime
@@ -322,7 +321,7 @@ def cleanup_lab_03(region_name: str = "us-west-2", verbose: bool = True) -> None
 
                             try:
                                 agentcore_client.delete_agent_runtime(agentRuntimeId=runtime_id)
-                                print(f"  ✓ Runtime deletion initiated: {redact_secret(runtime_id)}")
+                                print(f"  ✓ Runtime deletion initiated: ****")
 
                                 # Wait for Runtime to be fully deleted
                                 print("  ⏳ Waiting for Runtime deletion to complete...")
@@ -340,12 +339,12 @@ def cleanup_lab_03(region_name: str = "us-west-2", verbose: bool = True) -> None
                                         if current_status == 'DELETING':
                                             continue
                                     except agentcore_client.exceptions.ResourceNotFoundException:
-                                        print(f"  ✓ Runtime fully deleted: {redact_secret(runtime_id)}")
+                                        print(f"  ✓ Runtime fully deleted: ****")
                                         runtime_deleted = True
                                         break
                                     except Exception as e:
                                         if "not found" in str(e).lower():
-                                            print(f"  ✓ Runtime fully deleted: {redact_secret(runtime_id)}")
+                                            print(f"  ✓ Runtime fully deleted: ****")
                                             runtime_deleted = True
                                             break
                                         else:
@@ -398,7 +397,7 @@ def cleanup_lab_03(region_name: str = "us-west-2", verbose: bool = True) -> None
 
                         try:
                             agentcore_client.delete_agent_runtime(agentRuntimeId=runtime_id)
-                            print(f"  ✓ Runtime deletion initiated: {redact_secret(runtime_id)}")
+                            print(f"  ✓ Runtime deletion initiated: ****")
 
                             # Wait for Runtime to be fully deleted
                             print("  ⏳ Waiting for Runtime deletion to complete...")
@@ -416,12 +415,12 @@ def cleanup_lab_03(region_name: str = "us-west-2", verbose: bool = True) -> None
                                     if current_status == 'DELETING':
                                         continue
                                 except agentcore_client.exceptions.ResourceNotFoundException:
-                                    print(f"  ✓ Runtime fully deleted: {redact_secret(runtime_id)}")
+                                    print(f"  ✓ Runtime fully deleted: ****")
                                     runtime_deleted = True
                                     break
                                 except Exception as e:
                                     if "not found" in str(e).lower():
-                                        print(f"  ✓ Runtime fully deleted: {redact_secret(runtime_id)}")
+                                        print(f"  ✓ Runtime fully deleted: ****")
                                         runtime_deleted = True
                                         break
                                     else:

@@ -10,7 +10,6 @@ import boto3
 import json
 from lab_helpers.constants import PARAMETER_PATHS
 from lab_helpers.config import AWS_REGION as DEFAULT_AWS_REGION
-from lab_helpers.redaction import redact_secret
 
 # Initialize SSM client (region will be specified per call if needed)
 def get_ssm_client(region_name=None):
@@ -46,7 +45,7 @@ def put_parameter(key, value, description="", region_name=None, overwrite=True):
         print(f"🔍 DEBUG: put_parameter() called")
         print(f"   Key: {key}")
         if is_sensitive:
-            print(f"   Value: {redact_secret(str(value))}")
+            print(f"   Value: ****")
         else:
             print(f"   Value length: {len(str(value))} chars")
         print(f"   Region: {effective_region}")
@@ -59,7 +58,7 @@ def put_parameter(key, value, description="", region_name=None, overwrite=True):
             parameter_exists = True
             existing_value = existing['Parameter']['Value']
             if is_sensitive:
-                print(f"   Existing value: {redact_secret(existing_value)}")
+                print(f"   Existing value: ****")
             else:
                 print(f"   Existing value found: {len(existing_value)} chars")
         except ssm.exceptions.ParameterNotFound:
