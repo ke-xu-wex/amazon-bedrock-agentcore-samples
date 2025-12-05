@@ -3,6 +3,7 @@ from a2a.server.request_handlers import DefaultRequestHandler
 from a2a.server.tasks import InMemoryTaskStore
 from a2a.types import AgentCapabilities, AgentCard, AgentSkill
 from agent_executor import MonitoringAgentExecutor
+import boto3
 from starlette.responses import JSONResponse
 import logging
 import os
