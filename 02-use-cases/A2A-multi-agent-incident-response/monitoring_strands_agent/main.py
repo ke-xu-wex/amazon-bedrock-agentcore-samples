@@ -7,6 +7,7 @@ from starlette.responses import JSONResponse
 import logging
 import os
 import uvicorn
+import boto3
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
