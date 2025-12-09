@@ -16,7 +16,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
     raise RuntimeError("Missing OPENAI_API_KEY environment variable")
 
-MODEL_ID = os.getenv("MODEL_ID", "gpt-4o-2024-08-06")
+MODEL_ID = os.getenv("MODEL_ID", "gpt-4o-mini")
 MEMORY_ID = os.getenv("MEMORY_ID")
 if not MEMORY_ID:
     raise RuntimeError("Missing MEMORY_ID environment variable")

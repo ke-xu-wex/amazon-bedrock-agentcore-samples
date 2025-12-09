@@ -9,7 +9,7 @@ Parameters:
   OpenAIModelId:
     Type: String
     Description: OpenAI model id
-    Default: 'gpt-4o-2024-08-06'
+    Default: 'gpt-4o-mini'
   
   TavilyAPIKey:
     Type: String
@@ -904,6 +904,8 @@ Resources:
             - Fn::ImportValue: !Sub '${CognitoStackName}-WebSearchClientId'
       EnvironmentVariables:
         MODEL_ID: !Ref OpenAIModelId
+        AWS_REGION: !Sub '${AWS::Region}'
+        AWS_DEFAULT_REGION: !Sub '${AWS::Region}'
         MCP_REGION: !Sub '${AWS::Region}'
         TAVILY_API_KEY: !Ref TavilyAPIKey
         OPENAI_API_KEY: !Ref OpenAIKey

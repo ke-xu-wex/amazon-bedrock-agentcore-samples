@@ -161,6 +161,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.env.api-key
+.a2a.config
 
 # Spyder project settings
 .spyderproject

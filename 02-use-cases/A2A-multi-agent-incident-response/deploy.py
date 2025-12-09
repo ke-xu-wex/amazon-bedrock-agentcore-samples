@@ -575,10 +575,10 @@ def collect_deployment_parameters(account_id: str = None) -> Dict[str, Any]:
                 "OpenAI Model ID",
                 default=(
                     existing_config.get("api_keys", {}).get(
-                        "openai_model", "gpt-4o-2024-08-06"
+                        "openai_model", "gpt-4o-mini"
                     )
                     if use_existing
-                    else "gpt-4o-2024-08-06"
+                    else "gpt-4o-mini"
                 ),
                 required=True,
             ),

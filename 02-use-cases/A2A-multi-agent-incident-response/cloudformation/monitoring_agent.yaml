@@ -925,6 +925,8 @@ Resources:
             - Fn::ImportValue: !Sub '${CognitoStackName}-MonitoringClientId'
       EnvironmentVariables:
         MODEL_ID: !Ref BedrockModelId
+        AWS_REGION: !Sub '${AWS::Region}'
+        AWS_DEFAULT_REGION: !Sub '${AWS::Region}'
         MCP_REGION: !Sub '${AWS::Region}'
         MEMORY_ID: !GetAtt AgentMemory.MemoryId
         GATEWAY_PROVIDER_NAME: !Sub 'GatewayOAuth2Provider-${AWS::StackName}'

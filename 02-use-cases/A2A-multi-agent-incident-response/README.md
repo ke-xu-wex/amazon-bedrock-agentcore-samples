@@ -16,7 +16,7 @@ A comprehensive implementation of the [Agent-to-Agent (A2A)](https://a2a-protoco
 > This solution uses the following AI models by default:
 > - **Host Agent (Google ADK)**: `gemini-2.5-flash`
 > - **Monitoring Agent (Strands)**: `global.anthropic.claude-sonnet-4-5-20250929-v1:0` (Amazon Bedrock)
-> - **Web Search Agent (OpenAI)**: `gpt-4o-2024-08-06`
+> - **Web Search Agent (OpenAI)**: `gpt-4o-mini`
 >
 > These models can be customized during deployment. The deployment script will prompt you to specify different model IDs if needed.
 

@@ -12,20 +12,16 @@ echo "📋 Using Cognito stack name: $COGNITO_STACK_NAME"
 
 # Get AWS region and account ID
 echo "📍 Detecting AWS region and account..."
-REGION=$(aws configure get region)
-if [ -z "$REGION" ]; then
-    REGION="us-west-2"
-    echo "⚠️  No region configured, using default: $REGION"
-else
-    echo "✅ Region: $REGION"
-fi
+REGION="${REGION:-us-east-1}"
+echo "✅ Region: $REGION"
+
 
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 echo "✅ Account ID: $ACCOUNT_ID"
 
 # Fetch host agent runtime ID from SSM
 echo "📦 Fetching host agent runtime ID from SSM..."
-RUNTIME_ID=$(aws ssm get-parameter --name "/hostagent/agentcore/runtime-id" --query "Parameter.Value" --output text)
+RUNTIME_ID=$(aws ssm get-parameter --name "/hostagent/agentcore/runtime-id" --region "$REGION" --query "Parameter.Value" --output text)
 
 if [ -z "$RUNTIME_ID" ]; then
     echo "❌ Failed to fetch runtime ID from SSM parameter: /hostagent/agentcore/runtime-id"
@@ -41,7 +37,7 @@ echo "✅ Constructed Agent ARN: $AGENT_ARN"
 
 # Fetch Cognito configuration from CloudFormation stack outputs
 echo "🔐 Fetching Cognito configuration from CloudFormation..."
-STACK_OUTPUTS=$(aws cloudformation describe-stacks --stack-name "$COGNITO_STACK_NAME" --query "Stacks[0].Outputs" --output json)
+STACK_OUTPUTS=$(aws cloudformation describe-stacks --stack-name "$COGNITO_STACK_NAME" --region "$REGION" --query "Stacks[0].Outputs" --output json)
 
 if [ -z "$STACK_OUTPUTS" ] || [ "$STACK_OUTPUTS" == "null" ]; then
     echo "❌ Failed to fetch CloudFormation stack outputs for: $COGNITO_STACK_NAME"
