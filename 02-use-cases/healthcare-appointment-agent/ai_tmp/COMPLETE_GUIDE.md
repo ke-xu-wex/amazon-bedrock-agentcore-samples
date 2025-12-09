@@ -1310,7 +1310,7 @@ openapi_spec_file=./fhir-openapi-spec.yaml
 **File**: `../../.env.api-key` (manually created)
 
 ```bash
-GOOGLE_API_KEY=AIzaSyC3jYfDcJCipAqGg1PMg3TIe2JvYYjQc8I
+GOOGLE_API_KEY=fake-apikey
 ```
 
 ---
