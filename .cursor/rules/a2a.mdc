@@ -1,0 +1,67 @@
+---
+alwaysApply: true
+---
+
+#Code Agnet Instruction:
+THIS document is important!! It tells what knowledge you need to acquire so you can help me better!
+
+- Use "Project Reference Resource" to get more knowledges. Do not guess.
+- If you have to create intermediate files (temp data, test python, md ...), create them in **ai_tmp** folder. Including all plan doc, summary doc... Use below folder structure
+- STOP Creating any summary/troubleshooting notes and files without I ask you to do so.
+- 'ai_tmp' Folder structure (as example)
+  ai_tmp - scripts (all sh/py scripts)
+  ---- test_date (any re-useable test data)
+  ---- plan_doc (folder to hold plan docs)
+  ---- docs (all other docs, summary, diagram, etc..)
+
+- if you plan to do a 'big' change, STOP implementing and Write the plan and ask first!
+- Do NOT modify my config files(.properties, .env, etc...). Ask first!
+
+#AWS Access(TOKEN/AUTH):
+run `ke_aws ai-dev` to authn into my aws account. choose us-east-1 region
+
+#API-KEY/Secret:
+use source .env and source .env.api-key to load API as ENV variables; Then AI scripts/code can use env variables; NEVER expose my API keys to internet.
+
+#Project Reference Resource:
+##google adk document:
+
+- https://google.github.io/adk-docs/
+- https://google.github.io/adk-docs/agents/
+- https://google.github.io/adk-docs/a2a/
+
+##adk source code:
+
+- .venv/lib/a2a
+- .venv/lib/google-adk
+
+##agent gateway:
+
+- document: https://agentgateway.dev/docs/
+- example: https://github.com/agentgateway/agentgateway/tree/main/examples
+
+##A2A examples:
+
+- https://github.com/agentgateway/a2a-examples
+
+##A2A documents:
+
+- https://a2a-protocol.org/latest/topics/key-concepts/
+- https://a2a-protocol.org/latest/topics/agent-discovery/
+- https://a2a-protocol.org/latest/topics/enterprise-ready/
+- https://a2a-protocol.org/latest/topics/life-of-a-task/
+- https://a2a-protocol.org/latest/topics/extensions/
+- https://a2a-protocol.org/latest/topics/streaming-and-async/
+- https://a2a-protocol.org/latest/topics/a2a-and-mcp/
+
+##LangChain / LangGraph
+
+- https://docs.langchain.com/oss/python/langchain/overview
+- https://docs.langchain.com/oss/python/langgraph/overview
+- Examples: https://github.com/langchain-ai/langgraph/tree/main/examples
+
+### AWS Bedrock AgentCore
+
+- https://aws.amazon.com/bedrock/agentcore/
+- https://github.com/aws/bedrock-agentcore-sdk-python
+- https://github.com/awslabs/amazon-bedrock-agentcore-samples
