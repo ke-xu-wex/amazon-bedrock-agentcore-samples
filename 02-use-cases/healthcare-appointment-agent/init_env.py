@@ -33,7 +33,6 @@ def main():
         "cognito_user_pool_id":"",
         "cognito_client_id":"",
         "cognito_auth_scope":"",
-        "healthlake_endpoint":"",
         "openapi_spec_file":args.openapi_spec_file
     }
 
@@ -80,8 +79,6 @@ def main():
             env_vars['cognito_client_id'] = output['OutputValue']
         elif output['OutputKey'] == 'oAuthScope':
             env_vars['cognito_auth_scope'] = output['OutputValue']
-        elif output['OutputKey'] == 'HealthLakeEndpoint':
-            env_vars['healthlake_endpoint'] = output['OutputValue']
         elif output['OutputKey'] == 'UserPoolId':
             env_vars['cognito_user_pool_id'] = output['OutputValue']
         elif output['OutputKey'] == 'ApiUrl':

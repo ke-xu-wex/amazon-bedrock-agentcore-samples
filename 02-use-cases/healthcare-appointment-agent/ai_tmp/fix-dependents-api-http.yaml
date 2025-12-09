@@ -1,0 +1,47 @@
+---
+# Gateway for HTTP traffic (port 80) for dependents-api
+# This allows Lambda to connect via HTTP without HTTPS redirect
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: dependents-api-http
+  namespace: istio-system
+  labels:
+    app: dependents-api
+spec:
+  selector:
+    app: istio-ingress
+    istio: ingress
+  servers:
+  - hosts:
+    - "dependents-api.v2.ue1.wexapps.com"
+    port:
+      name: http
+      number: 80
+      protocol: HTTP
+---
+# Update VirtualService to use both HTTP and HTTPS gateways
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: dependents-api-public
+  namespace: a2a-demo
+  labels:
+    app: dependents-api
+spec:
+  gateways:
+  - istio-system/https-public          # Existing HTTPS gateway
+  - istio-system/dependents-api-http   # New HTTP gateway (no redirect)
+  hosts:
+  - dependents-api.v2.ue1.wexapps.com
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: dependents-api.a2a-demo.svc.cluster.local
+        port:
+          number: 80
+
+

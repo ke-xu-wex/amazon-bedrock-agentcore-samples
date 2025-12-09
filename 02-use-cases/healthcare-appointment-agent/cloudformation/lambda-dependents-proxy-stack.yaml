@@ -1,0 +1,149 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Lambda proxy for private dependents-api in EKS - enables AgentCore Gateway to access private microservices'
+
+Parameters:
+  VpcId:
+    Type: String
+    Default: 'vpc-06e29a20c7cf17505'
+    Description: 'VPC ID where EKS cluster runs'
+  
+  PrivateSubnetIds:
+    Type: CommaDelimitedList
+    Default: 'subnet-0f2a580e9e4356f23,subnet-082b5c25d630efbee,subnet-0d379714821e0b21a'
+    Description: 'Comma-separated list of private subnet IDs (all 3 EKS subnets for high availability)'
+  
+  NLBEndpoint:
+    Type: String
+    Default: 'http://tf-lb-20250808165539218800000018-b8275711ad86860d.elb.us-east-1.amazonaws.com'
+    Description: 'Internal NLB endpoint for dependents-api'
+
+Resources:
+  # Security Group for Lambda
+  LambdaSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: dependents-lambda-sg
+      GroupDescription: 'Security group for dependents-api Lambda proxy'
+      VpcId: !Ref VpcId
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 10.0.0.0/8
+          Description: 'HTTP to internal NLB for dependents-api'
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+          Description: 'HTTPS for AWS API calls (logs, etc.)'
+      Tags:
+        - Key: Name
+          Value: dependents-lambda-sg
+        - Key: project
+          Value: a2a-demo
+        - Key: creator
+          Value: ke-xu-wex
+
+  # IAM Role for Lambda Execution
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: 'dependents-lambda-execution-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+      Policies:
+        - PolicyName: LambdaLogging
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/dependents-api-proxy:*'
+      Tags:
+        - Key: project
+          Value: a2a-demo
+        - Key: creator
+          Value: ke-xu-wex
+
+  # CloudWatch Log Group for Lambda
+  LambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/lambda/dependents-api-proxy
+      RetentionInDays: 7
+      Tags:
+        - Key: project
+          Value: a2a-demo
+        - Key: creator
+          Value: ke-xu-wex
+
+  # Lambda Function (code will be updated separately)
+  DependentsApiProxyFunction:
+    Type: AWS::Lambda::Function
+    DependsOn: LambdaLogGroup
+    Properties:
+      FunctionName: dependents-api-proxy
+      Description: 'Proxy Lambda for dependents-api in EKS via internal NLB'
+      Runtime: python3.12
+      Handler: index.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Timeout: 30
+      MemorySize: 256
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
+        SubnetIds: !Ref PrivateSubnetIds
+      Environment:
+        Variables:
+          NLB_ENDPOINT: !Ref NLBEndpoint
+      Code:
+        ZipFile: |
+          import json
+          def lambda_handler(event, context):
+              return {'statusCode': 200, 'body': json.dumps({'message': 'Placeholder'})}
+      Tags:
+        - Key: Name
+          Value: dependents-api-proxy
+        - Key: project
+          Value: a2a-demo
+        - Key: creator
+          Value: ke-xu-wex
+
+  # Lambda Permission for AgentCore Gateway to invoke
+  LambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref DependentsApiProxyFunction
+      Action: lambda:InvokeFunction
+      Principal: bedrock-agentcore.amazonaws.com
+      SourceAccount: !Ref AWS::AccountId
+
+Outputs:
+  LambdaFunctionArn:
+    Description: 'ARN of the Lambda function'
+    Value: !GetAtt DependentsApiProxyFunction.Arn
+    Export:
+      Name: dependents-api-proxy-lambda-arn
+  
+  LambdaFunctionName:
+    Description: 'Name of the Lambda function'
+    Value: !Ref DependentsApiProxyFunction
+    Export:
+      Name: dependents-api-proxy-lambda-name
+  
+  SecurityGroupId:
+    Description: 'Security Group ID for Lambda'
+    Value: !Ref LambdaSecurityGroup
+    Export:
+      Name: dependents-lambda-sg-id
+

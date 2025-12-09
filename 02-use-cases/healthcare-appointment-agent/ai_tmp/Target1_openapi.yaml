@@ -5,7 +5,6 @@ info:
   version: 1.0.0
 servers:
 - url: https://y2wd96t0fb.execute-api.us-east-1.amazonaws.com/dev
-
 paths:
   /get_patient_emr:
     get:
@@ -13,12 +12,12 @@ paths:
       description: Returns a list of patient details based on patient id
       operationId: getPatient
       parameters:
-        - name: patient_id
-          in: query
-          description: ID of the patient to return
-          required: true
-          schema:
-            type: string
+      - name: patient_id
+        in: query
+        description: ID of the patient to return
+        required: true
+        schema:
+          type: string
       responses:
         '200':
           description: Successful operation
@@ -30,7 +29,6 @@ paths:
         uri: arn:aws:apigateway:${Region}:lambda:path/2015-03-31/functions/${LambdaFunctionArn}/invocations
         httpMethod: GET
         type: aws_proxy
-
   /search_immunization_emr:
     post:
       summary: Search immunization records
@@ -53,7 +51,6 @@ paths:
         uri: arn:aws:apigateway:${Region}:lambda:path/2015-03-31/functions/${LambdaFunctionArn}/invocations
         httpMethod: POST
         type: aws_proxy
-
   /book_appointment:
     post:
       summary: Book an appointment
@@ -76,19 +73,18 @@ paths:
         uri: arn:aws:apigateway:${Region}:lambda:path/2015-03-31/functions/${LambdaFunctionArn}/invocations
         httpMethod: POST
         type: aws_proxy
-
   /get_available_slots:
     get:
       summary: Get available slots as per immunization schedule date
       description: Returns doctor details along with available datetime slots
       operationId: getSlots
       parameters:
-        - name: date_string
-          in: query
-          description: Preferred date in YYYY-MM-DD
-          required: true
-          schema:
-            type: string
+      - name: date_string
+        in: query
+        description: Preferred date in YYYY-MM-DD
+        required: true
+        schema:
+          type: string
       responses:
         '200':
           description: Successful operation
@@ -100,13 +96,12 @@ paths:
         uri: arn:aws:apigateway:${Region}:lambda:path/2015-03-31/functions/${LambdaFunctionArn}/invocations
         httpMethod: GET
         type: aws_proxy
-
 components:
   schemas:
     searchImmunization:
       type: object
       required:
-        - search_value
+      - search_value
       properties:
         search_value:
           type: string
@@ -115,7 +110,7 @@ components:
     bookAppointment:
       type: object
       required:
-        - date_string
+      - date_string
       properties:
         date_string:
           type: string

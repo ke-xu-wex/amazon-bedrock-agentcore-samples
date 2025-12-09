@@ -1,0 +1,510 @@
+openapi: 3.1.0
+info:
+  title: Health Benefits Dependents API
+  description: '
+
+    ## Health Benefits Dependents Management API
+
+
+    This API manages health benefit dependents for employees. It handles both primary users (employees) and their dependents
+    (spouses, children, etc.).
+
+
+    ### Key Concepts:
+
+    - **Primary User**: An employee who has health benefits
+
+    - **Dependent**: A person linked to a primary user (spouse, child, domestic partner)
+
+    - All dependents must be linked to an existing primary user via `primary_user_id`
+
+
+    ### Common Workflows:
+
+    1. **Create Primary User**: Use POST /people with type="primary"
+
+    2. **Add Dependent**: Use POST /people with type="dependent" and link to primary_user_id
+
+    3. **List Dependents**: Use GET /people/{primary_user_id}/dependents
+
+    4. **Search People**: Use GET /people with optional filters
+
+
+    ### Important Notes:
+
+    - Dependents cannot be created without a valid primary_user_id
+
+    - Primary user must exist before creating dependents
+
+    - Type cannot be changed after creation
+
+    - Primary user ID cannot be changed after creation
+
+    '
+  version: 1.0.0
+servers:
+- url: https://dependents-api.v2.ue1.wexapps.com
+  description: EKS us-east-1 - a2a-demo namespace
+paths:
+  /people:
+    get:
+      summary: List People
+      description: 'Use this endpoint to list people in the system with optional filtering.
+
+
+        **Use cases:**
+
+        - Get all primary users: Use `type=primary`
+
+        - Get all dependents for a specific user: Use `primary_user_id=user_001`
+
+        - Get all dependents: Use `type=dependent`
+
+        - Get all people: No query parameters
+
+
+        **When to use:**
+
+        - Display a list of all employees (primary users)
+
+        - Show all dependents for a specific employee
+
+        - Search for people by type or primary user relationship
+
+
+        **Example requests:**
+
+        - `/people?type=primary` - List all primary users
+
+        - `/people?type=dependent&primary_user_id=user_001` - List dependents for user_001
+
+        - `/people` - List all people (primary users and dependents)'
+      operationId: list_people
+      parameters:
+      - name: type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Filter by type: ''primary'' to get only primary users, ''dependent'' to get only dependents'
+          title: Type
+        description: 'Filter by type: ''primary'' to get only primary users, ''dependent'' to get only dependents'
+      - name: primary_user_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Filter dependents by primary_user_id. Only returns dependents linked to this primary user ID. Example:
+            ''user_001'''
+          title: Primary User Id
+        description: 'Filter dependents by primary_user_id. Only returns dependents linked to this primary user ID. Example:
+          ''user_001'''
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeopleListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Create Person
+      description: "Use this endpoint to create a new person (either a primary user or dependent).\n\n**Creating a Primary\
+        \ User:**\n- Required: `type=\"primary\"`, `name`\n- Optional: `status` (defaults to \"active\")\n- Must NOT include:\
+        \ `primary_user_id`, `relationship`, `date_of_birth`\n\n**Creating a Dependent:**\n- Required: `type=\"dependent\"\
+        `, `name`, `primary_user_id`, `relationship`, `date_of_birth`\n- Optional: `status` (defaults to \"active\")\n- The\
+        \ `primary_user_id` must reference an existing primary user\n\n**When to use:**\n- Create a new primary user (employee)\
+        \ in the system\n- Add a dependent (spouse, child, etc.) to an existing primary user\n- Ensure the primary user exists\
+        \ before creating a dependent\n\n**Example payload for primary user:**\n```json\n{\n  \"type\": \"primary\",\n  \"\
+        name\": \"John Smith\",\n  \"status\": \"active\"\n}\n```\n\n**Example payload for dependent:**\n```json\n{\n  \"\
+        type\": \"dependent\",\n  \"name\": \"Jane Smith\",\n  \"primary_user_id\": \"user_001\",\n  \"relationship\": \"\
+        spouse\",\n  \"date_of_birth\": \"1990-05-15\",\n  \"status\": \"active\"\n}\n```"
+      operationId: create_person
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonCreate'
+      responses:
+        '201':
+          description: Returns the created person with generated ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /people/{person_id}:
+    get:
+      summary: Get Person by ID
+      description: 'Use this endpoint to retrieve details of a specific person by their ID.
+
+
+        **When to use:**
+
+        - Get full details of a specific person when you know their ID
+
+        - Verify if a person exists before performing operations
+
+        - Get person information to display to user
+
+
+        **Parameters:**
+
+        - `person_id`: The unique ID of the person (e.g., "user_001" for primary, "dep_001" for dependent)
+
+
+        **Returns:**
+
+        - Full person object with all fields
+
+        - 404 if person not found'
+      operationId: get_person
+      parameters:
+      - name: person_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Person Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      summary: Update Person
+      description: Update an existing person (placeholder implementation)
+      operationId: update_person
+      parameters:
+      - name: person_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Person Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      summary: Delete Person
+      description: Delete a person (placeholder implementation)
+      operationId: delete_person
+      parameters:
+      - name: person_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Person Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /people/{primary_user_id}/dependents:
+    get:
+      summary: List Dependents by Primary User
+      description: 'Use this endpoint to get all dependents for a specific primary user.
+
+
+        **When to use:**
+
+        - Display all dependents for a given primary user
+
+        - Verify dependents exist for a primary user
+
+        - Get dependent information for benefits enrollment
+
+
+        **Parameters:**
+
+        - `primary_user_id`: The ID of the primary user (must be a primary user, not a dependent)
+
+
+        **Returns:**
+
+        - List of all dependents linked to the primary user
+
+        - Empty list if no dependents exist
+
+        - 404 if primary user not found
+
+
+        **Example:**
+
+        - `/people/user_001/dependents` - Get all dependents for user_001'
+      operationId: list_dependents
+      parameters:
+      - name: primary_user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Primary User Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DependentsListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /health:
+    get:
+      summary: Health Check
+      description: Health check endpoint
+      operationId: health_check
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    DependentsListResponse:
+      properties:
+        dependents:
+          items:
+            $ref: '#/components/schemas/Person'
+          type: array
+          title: Dependents
+          description: List of dependents
+      type: object
+      required:
+      - dependents
+      title: DependentsListResponse
+      description: Response wrapper for list of dependents
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    PeopleListResponse:
+      properties:
+        people:
+          items:
+            $ref: '#/components/schemas/Person'
+          type: array
+          title: People
+          description: List of people
+      type: object
+      required:
+      - people
+      title: PeopleListResponse
+      description: Response wrapper for list of people
+    Person:
+      properties:
+        id:
+          type: string
+          title: Id
+        type:
+          type: string
+          enum:
+          - primary
+          - dependent
+          title: Type
+        name:
+          type: string
+          title: Name
+        primary_user_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Primary User Id
+        relationship:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Relationship
+        date_of_birth:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Date Of Birth
+        status:
+          type: string
+          title: Status
+          description: 'Status: ''active'' or ''inactive'''
+          default: active
+      type: object
+      required:
+      - id
+      - type
+      - name
+      title: Person
+      description: Person model representing either a primary user or dependent
+    PersonCreate:
+      properties:
+        type:
+          type: string
+          enum:
+          - primary
+          - dependent
+          title: Type
+          description: 'Type of person: ''primary'' for primary user (employee), ''dependent'' for dependent (spouse, child,
+            etc.)'
+          example: primary
+        name:
+          type: string
+          title: Name
+          description: Full name of the person
+          example: John Smith
+        primary_user_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Primary User Id
+          description: 'REQUIRED for dependents: The ID of the primary user this dependent belongs to (e.g., ''user_001'').
+            Must reference an existing primary user. Leave null for primary users.'
+          example: user_001
+        relationship:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Relationship
+          description: 'REQUIRED for dependents: Relationship to primary user. Common values: ''spouse'', ''child'', ''domestic_partner''.
+            Leave null for primary users.'
+          example: spouse
+        date_of_birth:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Date Of Birth
+          description: 'REQUIRED for dependents: Date of birth in YYYY-MM-DD format (e.g., ''1990-05-15''). Leave null for
+            primary users.'
+          example: '1990-05-15'
+        status:
+          type: string
+          title: Status
+          description: 'Status of the person: ''active'' (enrolled in benefits) or ''inactive'' (not enrolled). Defaults to
+            ''active''.'
+          default: active
+          example: active
+      type: object
+      required:
+      - type
+      - name
+      title: PersonCreate
+      description: 'Model for creating a new person
+
+
+        Use this model when creating either:
+
+        - A primary user (employee): Set type="primary", provide name
+
+        - A dependent (spouse/child): Set type="dependent", provide all required fields
+
+
+        For dependents, ensure the primary_user_id references an existing primary user.'
+      examples:
+      - name: John Smith
+        status: active
+        type: primary
+      - date_of_birth: '1990-05-15'
+        name: Jane Smith
+        primary_user_id: user_001
+        relationship: spouse
+        status: active
+        type: dependent
+    PersonUpdate:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        relationship:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Relationship
+        date_of_birth:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Date Of Birth
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      type: object
+      title: PersonUpdate
+      description: Model for updating a person (type and primary_user_id cannot be changed)
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

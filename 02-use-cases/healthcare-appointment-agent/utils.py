@@ -43,7 +43,8 @@ def get_oath_token(boto_session):
     response = requests.post(
         os.getenv("cognito_token_url"),
         data=f"grant_type=client_credentials&client_id={os.getenv('cognito_client_id')}&client_secret={get_cognito_client_secret(boto_session)}&scope={os.getenv('cognito_auth_scope')}",
-        headers={'Content-Type': 'application/x-www-form-urlencoded'}
+        headers={'Content-Type': 'application/x-www-form-urlencoded'},
+        verify=False  # Disable SSL verification for corporate proxy environments
     )
 
     #print(response.json())

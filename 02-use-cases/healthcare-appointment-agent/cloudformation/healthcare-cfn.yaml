@@ -38,27 +38,13 @@ Resources:
             - !Split
               - '/'
               - !Ref 'AWS::StackId'
-      Policies:
-        - PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Resource: '*'
-                Action:
-                  - healthlake:CreateResource
-                  - healthlake:StartFHIRExportJob
-                  - healthlake:ReadResource
-                  - healthlake:StartFHIRImportJob
-                  - healthlake:DeleteResource
-                  - healthlake:ProcessBundle
-                  - healthlake:SearchWithGet
-                  - healthlake:StartFHIRExportJobWithGet
-                  - healthlake:SearchWithPost
-                  - healthlake:StartFHIRExportJobWithPost
-                  - healthlake:UpdateResource
-                  - healthlake:SearchEverything
-                Effect: Allow
-                Sid: VisualEditor0
-          PolicyName: HealthLakeAccess
+      Tags:
+        - Key: project
+          Value: a2a-demo
+        - Key: creator
+          Value: ke-xu-wex
+        - Key: purpose
+          Value: healthcare-mcp-gateway-demo
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -83,6 +69,13 @@ Resources:
             - !Split
               - '/'
               - !Ref 'AWS::StackId'
+      Tags:
+        - Key: project
+          Value: a2a-demo
+        - Key: creator
+          Value: ke-xu-wex
+        - Key: purpose
+          Value: healthcare-mcp-gateway-demo
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -120,6 +113,13 @@ Resources:
             - !Split
               - '/'
               - !Ref 'AWS::StackId'
+      Tags:
+        - Key: project
+          Value: a2a-demo
+        - Key: creator
+          Value: ke-xu-wex
+        - Key: purpose
+          Value: healthcare-mcp-gateway-demo
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -128,25 +128,10 @@ Resources:
             Effect: Allow
             Principal:
               Service: bedrock-agentcore.amazonaws.com
-  HealthLakeFHIRDatastore:
-    Type: AWS::HealthLake::FHIRDatastore
-    DeletionPolicy: Delete
-    UpdateReplacePolicy: Delete
-    Properties:
-      DatastoreTypeVersion: R4
-      DatastoreName: fhirStore
-      IdentityProviderConfiguration:
-        FineGrainedAuthorizationEnabled: false
-        AuthorizationStrategy: AWS_AUTH
-      PreloadDataConfig:
-        PreloadDataType: SYNTHEA
-      SseConfiguration:
-        KmsEncryptionConfig:
-          CmkType: AWS_OWNED_KMS_KEY
   FhirMCPLambda:
     Type: AWS::Lambda::Function
     Properties:
-      Description: 'Lambda function for MCP tools'
+      Description: 'Lambda function for MCP tools - using mock data'
       Handler: lambda_function.lambda_handler
       Code:
         S3Bucket: !Ref LambdaS3Bucket
@@ -162,11 +147,15 @@ Resources:
               - !Ref 'AWS::StackId'
       Runtime: python3.11
       PackageType: Zip
-      Environment:
-        Variables:
-          data_store_endpoint: !GetAtt HealthLakeFHIRDatastore.DatastoreEndpoint
       Architectures:
         - x86_64
+      Tags:
+        - Key: project
+          Value: a2a-demo
+        - Key: creator
+          Value: ke-xu-wex
+        - Key: purpose
+          Value: healthcare-mcp-gateway-demo
 
   APIGWCognitoLambda:
     Type: AWS::Lambda::Function
@@ -184,6 +173,13 @@ Resources:
             - - 'default-m2m-resource-server-'
               - !Select [0, !Split ['-', !Select [2, !Split ['/', !Ref 'AWS::StackId']]]]
               - '/read'
+      Tags:
+        - Key: project
+          Value: a2a-demo
+        - Key: creator
+          Value: ke-xu-wex
+        - Key: purpose
+          Value: healthcare-mcp-gateway-demo
       Code:
         ZipFile:
           !Sub |
@@ -464,6 +460,10 @@ Resources:
       MfaConfiguration: 'OFF'
       UsernameConfiguration:
         CaseSensitive: false
+      UserPoolTags:
+        project: a2a-demo
+        creator: ke-xu-wex
+        purpose: healthcare-mcp-gateway-demo
   UserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     DependsOn: ResourceServer
@@ -517,11 +517,6 @@ Resources:
           - !Select [0, !Split ['-', !Select [2, !Split ['/', !Ref 'AWS::StackId']]]]
 
 Outputs:
-  HealthLakeEndpoint:
-    Description: 'HealthLake Endpoint'
-    Value: !GetAtt HealthLakeFHIRDatastore.DatastoreEndpoint
-    Export:
-      Name: !Sub '${AWS::StackName}-HealthLakeEndpoint'
   RestApiId:
     Description: 'REST API Id'
     Value: !Ref RestApi
